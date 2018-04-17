@@ -34,7 +34,11 @@ model_path = '/home/pengshanzhen/try_video/final_models/mcnn_shtechA_126.h5'
 videogen = skvideo.io.vread('/home/pengshanzhen/try_video/TrackingPeople.mp4')
 for frame in videogen:
   
-  
+  ht = frame.shape[0]
+  wd = frame.shape[1]
+  ht_1 = (ht/4)*4
+  wd_1 = (wd/4)*4
+  frame_color = cv2.resize(frame,((wd_1/4),(ht_1/4)), interpolation=cv2.INTER_CUBIC)
   frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
   
   frame = frame.astype(np.float32, copy=False)
@@ -64,10 +68,24 @@ for frame in videogen:
   #print(density_map.shape)
   #exit()
   
-  density_map = cv2.addWeighted(frame1, 0.8, density_map, 0.2, 0)
+  #density_map = cv2.addWeighted(frame1, 0.8, density_map, 0.2, 0)
   font=cv2.FONT_HERSHEY_SIMPLEX  
   
   cv2.putText(density_map,str(et_count),(10,150),font,1,(255,0,0),3)  
+  b = cv2.split(density_map)[0]
+  g = cv2.split(density_map)[0]
+  r = cv2.split(density_map)[0]
+
+  color_density_map = cv2.merge([b,g,r])
+  #color_density_map = color_density_map.transpose([2, 0, 1])
+
+  #print(color_density_map)
+  #print(color_density_map.shape)
+  #exit()
+  #print(frame_color)
+  #print(frame_color.shape)
+  #exit()
+  density_map = np.concatenate([frame_color, color_density_map], axis=1)
   
   #print(density_map)
   #print(density_map.shape)
@@ -81,7 +99,7 @@ np_video_array = np.array(video_list)
 #print(np_video_array)
 #print(np_video_array.shape)
 outputdata = np_video_array.astype(np.uint8)
-skvideo.io.vwrite("5_output_TrackingPeople.mp4", outputdata)
+skvideo.io.vwrite("7_output_TrackingPeople.mp4", outputdata)
   #frame = frame.reshape((1,1,frame.shape[0],frame.shape[1],frame.shape[2]))
   #print(frame)  
   #print(frame.shape)
